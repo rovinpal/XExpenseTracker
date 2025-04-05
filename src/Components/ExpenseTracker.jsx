@@ -1,94 +1,64 @@
 import React, { useState, useEffect } from 'react';
 import AddIncomeForm from './IncomeForm';
 import AddExpenseForm from './ExpenseForm';
-// import EditExpenseForm from './EditExpenseForm';
+import EditExpenseForm from './EditExpenseForm';
 import ExpenseList from './ExpenseList';
 import PieChartBox from './PieChartBox';
 import BarChart from './BarChart';
 
 function ExpenseTracker() {
-    const [walletBalance, setWalletBalance] = useState(5000);
-    const [totalExpense, setTotalExpense] = useState(0);
     const [showForm, setShowForm] = useState(false);
     const [showExpenseForm, setShowExpenseForm] = useState(false);
-    const [expenseList, setExpenseList] = useState([]);
-
+    const [editingExpense, setEditingExpense] = useState(null); // Track expense being edited
+  
+    const [walletBalance, setWalletBalance] = useState(() => {
+      const storedBalance = localStorage.getItem("walletBalance");
+      return storedBalance ? JSON.parse(storedBalance) : 5000;
+    });
+  
+    const [expenses, setExpenses] = useState(() => {
+      const storedExpenses = localStorage.getItem("expenses");
+      return storedExpenses ? JSON.parse(storedExpenses) : [];
+    });
+  
+    const totalExpenses = expenses.reduce((acc, expense) => acc + expense.amount, 0);
+  
+    useEffect(() => {
+      localStorage.setItem("walletBalance", JSON.stringify(walletBalance));
+    }, [walletBalance]);
+  
+    useEffect(() => {
+      localStorage.setItem("expenses", JSON.stringify(expenses));
+    }, [expenses]);
+  
     const handleAddIncome = (amount) => {
-        setWalletBalance(prev => prev + amount);
+      setWalletBalance((prev) => prev + amount);
     };
-
-    
-    const handleAddExpense = (expense) => {
-        if (expense.amount > walletBalance) {
-          alert("You cannot spend more than the wallet balance!");
-          return;
-        }
-      
-        const updatedExpenses = [...expenseList, expense];
-        setExpenseList(updatedExpenses);
-        setWalletBalance(prev => prev - expense.amount);
-        setTotalExpense(prev => prev + expense.amount);
-        localStorage.setItem('expenses', JSON.stringify(updatedExpenses));
-  };
   
-  useEffect(() => {
-    const storedExpenses = JSON.parse(localStorage.getItem('expenses')) || [];
-    setExpenseList(storedExpenses);
-    const total = storedExpenses.reduce((sum, exp) => sum + exp.amount, 0);
-    setTotalExpense(total);
-    setWalletBalance(5000 - total); 
-  }, []);
-
-  const getChartData = () => {
-    const categoryTotals = {};
-  
-    expenseList.forEach(exp => {
-      const category = exp.category;
-      const amount = Number(exp.amount);
-      if (!categoryTotals[category]) {
-        categoryTotals[category] = 0;
+    const handleAddExpense = (newExpense) => {
+      if (walletBalance >= newExpense.amount) {
+        setWalletBalance((prev) => prev - newExpense.amount);
+        setExpenses((prev) => [...prev, newExpense]);
+      } else {
+        alert("Insufficient balance!");
       }
-      categoryTotals[category] += amount;
-    });
-  
-    return Object.keys(categoryTotals).map(cat => ({
-      label: cat,
-      value: categoryTotals[cat],
-    }));
-  };
-  
-  const getPieChartData = () => {
-    const categories = ["food", "travel", "entertainment"];
-    const categoryTotals = {
-      food: 0,
-      travel: 0,
-      entertainment: 0,
     };
   
-    expenseList.forEach((exp) => {
-      const category = exp.category.toLowerCase();
-      if (categoryTotals.hasOwnProperty(category)) {
-        categoryTotals[category] += Number(exp.amount);
-      }
-    });
-  
-    const data = categories.map((cat) => categoryTotals[cat]);
-    const colors = ["#FF6384", "#36A2EB", "#FFCD56"];
-  
-    return {
-      labels: categories,
-      datasets: [
-        {
-          data,
-          backgroundColor: colors,
-          borderWidth: 1,
-        },
-      ],
+    const handleEditExpense = (expense) => {
+      setEditingExpense(expense);
+      setShowExpenseForm(true);
     };
-  };
   
+    const handleUpdateExpense = (updatedExpense) => {
+      setExpenses((prev) =>
+        prev.map((exp) => (exp.id === updatedExpense.id ? updatedExpense : exp))
+      );
+      setEditingExpense(null);
+    };
   
-
+    const handleDeleteExpense = (id) => {
+      setExpenses((prev) => prev.filter((exp) => exp.id !== id));
+    };
 
 
 return (
@@ -117,7 +87,7 @@ return (
 
             <div style={{ flex: 0.5, backgroundColor: "#9b9b9b", height: "250px", borderRadius: "10px", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
             <p style={{ color: "white", fontWeight: "400", fontSize: "30px", lineHeight: "100%", letterSpacing: "0%" }}>
-                Expenses: <span style={{ fontWeight: "700", color: "#F4BB4A" }}>₹{totalExpense}</span>
+                Expenses: <span style={{ fontWeight: "700", color: "#F4BB4A" }}>₹{totalExpenses}</span>
             </p>
             <button type="button" onClick={() => setShowExpenseForm(true)} style={{ padding: "10px", backgroundColor: "#4CAF50", color: "white", width: "150px", borderRadius: "15px", border: "none", cursor: "pointer", fontSize: "16px", background: "linear-gradient(90deg, #FF9595 0%, #FF4747 80%, #FF3838 100%)" }}>
                 + Add Expense
@@ -132,7 +102,10 @@ return (
             )}
             
             <div style={{ flex: 0.5 }}>
-                <PieChartBox chartData={getPieChartData()} />
+                <div style={{display: "flex", justifyContent: "center"}}>
+                    <PieChartBox expenses={expenses}/>
+                </div>
+
                 <div
                     style={{
                         display: "flex",
@@ -192,7 +165,7 @@ return (
                 <h2 style={{ fontStyle: "italic", color: "white" }}>Recent Transactions</h2>
 
                 <div style={{ background: "#FFFFFF", borderRadius: "10px", padding: "20px" }}>
-                    <ExpenseList expenses={expenseList}/>
+                    <ExpenseList expenses={expenses} onEdit={handleEditExpense} onDelete={handleDeleteExpense} />
                 </div>
             </div>
 
@@ -201,12 +174,23 @@ return (
                 <h2 style={{ fontStyle: "italic", color: "white" }}>Top Expenses</h2>
 
                 <div style={{ display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "flex-start", backgroundColor: "white", width: "100%", minHeight: "250px", borderRadius: "10px" }}>
-                    <BarChart data={getChartData()}/>
+                    <BarChart expenses={expenses}/>
                 </div>
 
             </div>
         
         </div>
+
+        {editingExpense  && (
+            <EditExpenseForm
+                expense={editingExpense}
+                onUpdateExpense={handleUpdateExpense}
+                onClose={() => setEditingExpense(null)}
+                closeFormEscape={(e, close) => {
+                    if (e.key === "Escape") close();
+                }}
+            />
+        )}
 
     </div>
 );

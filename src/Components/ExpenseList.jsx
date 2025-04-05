@@ -17,7 +17,7 @@ const formatDate = (dateStr) => {
   });
 };
 
-const ExpenseList = ({ expenses  = [] }) => {
+const ExpenseList = ({ expenses  = [],  onEdit, onDelete }) => {
   const itemsPerPage = 3;
   const [currentPage, setCurrentPage] = useState(1);
 
@@ -38,72 +38,80 @@ const ExpenseList = ({ expenses  = [] }) => {
         margin: "auto",
       }}
     >
-      {currentExpenses.map((tx) => (
-        <div key={tx.id} style={{ marginBottom: "16px" }}>
-          <div
-            style={{
-              display: "flex",
-              justifyContent: "space-between",
-              alignItems: "center",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              <div
-                style={{
-                  width: "32px",
-                  height: "32px",
-                  borderRadius: "50%",
-                  backgroundColor: "#d9d9d9",
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                }}
-              >
-                {categoryIcons[tx.category.toLowerCase()]}
-              </div>
-              <div>
-                <div style={{ fontWeight: "bold" }}>{tx.category}</div>
-                <div style={{ fontSize: "12px", color: "gray" }}>
-                  {formatDate(tx.date)}
+    {sortedExpenses.length === 0 ? (
+        <p style={{ textAlign: "center", color: "gray", fontStyle: "italic" }}>
+          No Transactions!
+        </p>
+      ) : (
+        currentExpenses.map((tx) => (
+          <div key={tx.id} style={{ marginBottom: "16px" }}>
+            <div
+              style={{
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <div
+                  style={{
+                    width: "32px",
+                    height: "32px",
+                    borderRadius: "50%",
+                    backgroundColor: "#d9d9d9",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                  }}
+                >
+                  {categoryIcons[tx.category.toLowerCase()]}
+                </div>
+                <div>
+                  <div style={{ fontWeight: "bold" }}>{tx.title}</div>
+                  <div style={{ fontSize: "12px", color: "gray" }}>
+                    {formatDate(tx.date)}
+                  </div>
                 </div>
               </div>
+
+              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                <span style={{ fontWeight: "bold", color: "#f4bb4a" }}>
+                  ₹{tx.amount}
+                </span>
+
+                <button
+                  onClick={() => onDelete && onDelete(tx.id)}
+                  style={{
+                    backgroundColor: "#ff3e3e",
+                    border: "none",
+                    borderRadius: "4px",
+                    padding: "6px",
+                    cursor: "pointer",
+                  }}
+                  title="Delete"
+                >
+                  <MdOutlineDeleteOutline size={16} color="#fff" />
+                </button>
+
+                <button
+                  onClick={() => onEdit && onEdit(tx)}
+                  style={{
+                    backgroundColor: "#f4bb4a",
+                    border: "none",
+                    borderRadius: "4px",
+                    padding: "6px",
+                    cursor: "pointer",
+                  }}
+                  title="Edit"
+                >
+                  <MdEdit size={16} color="#fff" />
+                </button>
+              </div>
             </div>
-
-            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              <span style={{ fontWeight: "bold", color: "#f4bb4a" }}>
-                ${tx.amount}
-              </span>
-
-              <button
-                style={{
-                  backgroundColor: "#ff3e3e",
-                  border: "none",
-                  borderRadius: "4px",
-                  padding: "6px",
-                  cursor: "pointer",
-                }}
-                title="Delete"
-              >
-                <MdOutlineDeleteOutline size={16} color="#fff" />
-              </button>
-
-              <button
-                style={{
-                  backgroundColor: "#f4bb4a",
-                  border: "none",
-                  borderRadius: "4px",
-                  padding: "6px",
-                  cursor: "pointer",
-                }}
-                title="Edit"
-              >
-                <MdEdit size={16} color="#fff" />
-              </button>
-            </div>
+            <hr style={{ marginTop: "10px", borderColor: "#eee" }} />
           </div>
-          <hr style={{ marginTop: "10px", borderColor: "#eee" }} />
-        </div>
-      ))}
+        ))
+      )}
 
       {totalPages > 1 && (
         <div

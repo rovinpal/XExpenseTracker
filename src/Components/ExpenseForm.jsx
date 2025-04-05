@@ -6,31 +6,32 @@ const AddExpenseForm = ({ onAddExpense, onClose }) => {
   const [category, setCategory] = useState("");
   const [date, setDate] = useState("");
 
-  const validTitles = ["food", "travel", "entertainment"];
+  const validCategories = ["food", "travel", "entertainment"];
+
 
   const handleAddExpense = (e) => {
     e.preventDefault();
 
-    if (!validTitles.includes(title.toLowerCase())) {
-      alert("Title must be one of: Food, Travel, Entertainment");
+    if (!title || !amount || !category || !date) {
+      alert("All fields are required.");
       return;
     }
 
-    if (!amount || !category || !date) {
-      alert("All fields are required.");
+    if (!validCategories.includes(category.toLowerCase())) {
+      alert("Category must be one of: Food, Travel, Entertainment");
       return;
     }
 
     const newExpense = {
       id: Date.now(),
-      title: title.toLowerCase(),
+      title,
       amount: parseFloat(amount),
-      category,
+      category: category.toLowerCase(),
       date,
     };
 
-    onAddExpense(newExpense); // Send expense to parent
-    onClose(); // Close form
+    onAddExpense(newExpense); 
+    onClose();
   };
 
   return (
@@ -71,7 +72,7 @@ const AddExpenseForm = ({ onAddExpense, onClose }) => {
               name="title"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Title (food/travel/entertainment)"
+              placeholder="Title"
               style={{
                 width: "225px",
                 height: "30px",
@@ -111,7 +112,7 @@ const AddExpenseForm = ({ onAddExpense, onClose }) => {
               name="category"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              placeholder="Category"
+              placeholder="Category (Food, Travel, Entertainment)"
               style={{
                 width: "225px",
                 height: "30px",

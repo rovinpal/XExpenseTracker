@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 
 const AddIncomeForm = ({ onAddIncome, onClose }) => {
   const [incomeAmount, setIncomeAmount] = useState("");
@@ -10,6 +10,8 @@ const AddIncomeForm = ({ onAddIncome, onClose }) => {
       onAddIncome(amount);
       setIncomeAmount("");
       onClose();
+    } else {
+      alert("Please enter a valid amount.");
     }
   };
 
@@ -37,7 +39,7 @@ const AddIncomeForm = ({ onAddIncome, onClose }) => {
         }}
       >
         <h2>Add Balance</h2>
-        <form>
+        <form onSubmit={handleAddBalance}>
           <div
             style={{
               display: "flex",
@@ -64,7 +66,6 @@ const AddIncomeForm = ({ onAddIncome, onClose }) => {
             />
             <button
               type="submit"
-              onClick={handleAddBalance}
               style={{
                 width: "150px",
                 height: "50px",
