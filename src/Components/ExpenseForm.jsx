@@ -107,12 +107,10 @@ const AddExpenseForm = ({ onAddExpense, onClose }) => {
               alignItems: "flex-start",
             }}
           >
-            <input
-              type="text"
+            <select
               name="category"
               value={category}
               onChange={(e) => setCategory(e.target.value)}
-              placeholder="Category (Food, Travel, Entertainment)"
               style={{
                 width: "225px",
                 height: "30px",
@@ -121,7 +119,12 @@ const AddExpenseForm = ({ onAddExpense, onClose }) => {
                 borderRadius: "8px",
                 border: "1px solid #ccc",
               }}
-            />
+            >
+              <option value="">Select Category</option>
+              <option value="food">Food</option>
+              <option value="travel">Travel</option>
+              <option value="entertainment">Entertainment</option>
+            </select>
             <input
               type="date"
               name="date"
