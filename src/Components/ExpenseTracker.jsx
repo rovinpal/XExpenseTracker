@@ -70,7 +70,7 @@ return (
         
             <div style={{ flex: 0.5, backgroundColor: "#9b9b9b", height: "250px", borderRadius: "10px", display: "flex", flexDirection: "column", justifyContent: "center", alignItems: "center" }}>
             <p style={{ color: "white", fontWeight: "400", fontSize: "30px", lineHeight: "100%", letterSpacing: "0%" }}>
-                Wallet balance: <span style={{ fontWeight: "700", color: "#9DFF5B" }}>₹{walletBalance}</span>
+                Wallet Balance: <span style={{ fontWeight: "700", color: "#9DFF5B" }}>₹{walletBalance}</span>
             </p>
             <button type="button" onClick={() => setShowForm(true)} style={{ padding: "10px", backgroundColor: "#4CAF50", color: "white", width: "150px", borderRadius: "15px", border: "none", cursor: "pointer", fontSize: "16px", background: "linear-gradient(90deg, #B5DC52 0%, #89E148 100%)" }}>
                 + Add Income
